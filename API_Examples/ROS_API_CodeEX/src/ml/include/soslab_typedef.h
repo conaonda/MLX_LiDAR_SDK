@@ -1,5 +1,8 @@
 /*
  * soslab_typdef.h
+ *
+ *  Created on: Nov 16, 2018
+ *      Author: gnohead
  */
 
 #ifndef SOSLAB_TYPEDEF_H_
@@ -60,84 +63,13 @@ namespace SOSLAB
     /** @brief data arryay */
     typedef std::vector<uint8_t> hex_array_t;
 
-    /** @brief The structure of a single point corresponds to the speherical coordinate system. */
-#if defined(_MSC_VER)
-#pragma pack(push, 1) 
-    typedef struct _SPHERICAL_POINT_T
-#else
-    typedef struct __attribute__((packed)) _SPHERICAL_POINT_T
-#endif
-    {
-        FLOAT_T r;          /**< Range value */
-        FLOAT_T theta;      /**< Theta value */
-        FLOAT_T phi;        /**< Phi value */
-
-        bool operator==(_SPHERICAL_POINT_T const& pt) const
-        {
-            bool retval = (std::numeric_limits<FLOAT_T>::epsilon() < abs(r - pt.r));
-            retval &= (std::numeric_limits<FLOAT_T>::epsilon() < abs(theta - pt.theta));
-            retval &= (std::numeric_limits<FLOAT_T>::epsilon() < abs(phi - pt.phi));
-            return retval;
-        }
-
-    } spherical_point_t;
-#if defined(_MSC_VER)
-#pragma pack(pop)
-#endif
-
-
-    /** @brief The structure of a single point corresponds to the cartesian coordinate system. */
-#if defined(_MSC_VER)
-#pragma pack(push, 1) 
-    typedef struct _CARTESIAN_POINT_T
-#else
-    typedef struct __attribute__((packed)) _CARTESIAN_POINT_T
-#endif
-    {
-        FLOAT_T x;          /**< x value */
-        FLOAT_T y;          /**< y value */
-        FLOAT_T z;          /**< z value */
-
-        bool operator==(_CARTESIAN_POINT_T const& pt) const
-        {
-            bool retval = (std::numeric_limits<FLOAT_T>::epsilon() < abs(x - pt.x));
-            retval &= (std::numeric_limits<FLOAT_T>::epsilon() < abs(y - pt.y));
-            retval &= (std::numeric_limits<FLOAT_T>::epsilon() < abs(z - pt.z));
-            return retval;
-        }
-
-    } cartesian_point_t;
-#if defined(_MSC_VER)
-#pragma pack(pop)
-#endif
-
-
-    /** @brief The structure of a single point for TWO coordinate system. */
-#if defined(_MSC_VER)
-#pragma pack(push, 1) 
+    /** @brief The structure of a single point for the cartesian coordinate. */
     typedef struct _POINT_T
-#else
-    typedef struct __attribute__((packed)) _POINT_T
-#endif
     {
-        spherical_point_t rtp;      /**< spherical coordinate */
-        cartesian_point_t xyz;      /**< cartesian coordinate */
-        FLOAT_T pw;                 /**< pulse width */
-
-        _POINT_T() { memset(this, 0, sizeof(_POINT_T)); }
-
-        bool operator==(_POINT_T const& pt) const
-        {
-            bool retval = (rtp == pt.rtp);
-            retval &= (xyz == pt.xyz);
-            retval &= (pw == pt.pw);
-            return retval;
-        }
-
+        float x;          /**< x value (unit : mm) */
+        float y;          /**< y value (unit : mm) */
+        float z;          /**< z value (unit : mm) */
     } point_t;
-#if defined(_MSC_VER)
-#pragma pack(pop)
-#endif
 
     /** @brief Structure of the pointcloud of SOSLAB LiDAR */
     typedef std::vector<point_t> pointcloud_t;
@@ -147,7 +79,6 @@ namespace SOSLAB
         std::string ip_address;
         int port_number;
     } ip_settings_t;
-
 } /* namespace SOSLAB */
 
 
