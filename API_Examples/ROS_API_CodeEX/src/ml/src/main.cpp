@@ -81,19 +81,26 @@ int main (int argc, char **argv)
     std::cout << "> ip_address_pc: " << ip_settings_pc.ip_address << std::endl;
     std::cout << "> ip_port_pc: " << ip_settings_pc.port_number << std::endl;
 
-    success = lidar_ml->connect(ip_settings_device, ip_settings_pc);
-    if (!success) {
-        std::cerr << "LiDAR ML :: Connection failed." << std::endl;
-        return 0;
-    }
-    
-    /* 데이터 스트리밍을 시작 합니다. */
-    success = lidar_ml->run();
-    if (!success) {
-        std::cerr << "LiDAR ML :: Start failed." << std::endl;
-        return 0;
-    }
+	success = lidar_ml->connect(ip_settings_device, ip_settings_pc);
+	if (!success) {
+		std::cerr << "LiDAR ML :: connection failed." << std::endl;
+		return 0;
+	}
 
+    /* Data Selection */
+    lidar_ml->ambient_enalbe(true);     //Ambient enable (True / False)
+    lidar_ml->depth_enalbe(true);       //Depth enable (True / False)
+    lidar_ml->intensity_enalbe(true);   //Intensity enable (True / False)
+    lidar_ml->multi_echo_enalbe(true);  //Multi Echo enable (True / False)
+
+	success = lidar_ml->run();
+
+	if (!success) {
+		std::cerr << "LiDAR ML :: run failed." << std::endl;
+	}
+	else {
+		std::cout << "LiDAR ML :: run." << std::endl;
+	}
     std::cout << "LiDAR ML :: Streaming started!" << std::endl;
 
     /* publisher setting */
@@ -116,6 +123,7 @@ int main (int argc, char **argv)
     int max_intensity_img_val = 3000;
 
     /* publishing start */
+    ros::Rate r(50);
     while (ros::ok()) {
         SOSLAB::LidarML::scene_t scene;
         /* Stream FIFO로부터 한 프레임씩 Lidar data를 가져옵니다. */
@@ -192,6 +200,7 @@ int main (int argc, char **argv)
             pub_lidar.publish(msg_pointcloud);
         }
         ros::spinOnce();
+        r.sleep();
     }
 
     /* 스트리밍을 종료 합니다. */

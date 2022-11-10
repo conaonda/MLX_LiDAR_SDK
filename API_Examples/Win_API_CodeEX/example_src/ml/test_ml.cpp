@@ -79,6 +79,13 @@ int main()
 		std::cerr << "LiDAR ML :: connection failed." << std::endl;
 		return 0;
 	}
+
+	/* Data Selection */
+    lidar_ml->ambient_enalbe(true);     //Ambient enable (True / False)
+    lidar_ml->depth_enalbe(true);       //Depth enable (True / False)
+    lidar_ml->intensity_enalbe(true);   //Intensity enable (True / False)
+    lidar_ml->multi_echo_enalbe(true);  //Multi Echo enable (True / False)
+
 	success = lidar_ml->run();
 
 	if (!success) {

@@ -1,5 +1,24 @@
 # (SOSLAB) ML-X LiDAR SDK
 ---
+## Release v1.2.0 (2022-11-10, ML-X Rev.4) 
+
+### F/W (v2.1.0)
+- ML-X H/W rev.4 Control Logic
+- PCD, Image Data Selection
+- On-device Signal/Data Processing
+	- Flaring Removal 
+<br/>
+
+### API & LiDAR SW (v2.1.0)
+- User Mode Toolbar Update
+	- PCAP Data Logger & Palyer
+- Develop Mode Toolbar Update
+	- Full/User Packet Selection
+<br/>
+<br/>
+<br/>
+
+
 ## Release v1.1.0 (2022-10-06, ML-X Rev.3) 
 
 ### F/W (v2.0.1)
