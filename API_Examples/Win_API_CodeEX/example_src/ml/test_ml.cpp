@@ -81,10 +81,10 @@ int main()
 	}
 
 	/* Data Selection */
-    lidar_ml->ambient_enalbe(true);     //Ambient enable (True / False)
-    lidar_ml->depth_enalbe(true);       //Depth enable (True / False)
-    lidar_ml->intensity_enalbe(true);   //Intensity enable (True / False)
-    lidar_ml->multi_echo_enalbe(true);  //Multi Echo enable (True / False)
+    lidar_ml->ambient_enable(true);     //Ambient enable (True / False)
+    lidar_ml->depth_enable(true);       //Depth enable (True / False)
+    lidar_ml->intensity_enable(true);   //Intensity enable (True / False)
+    lidar_ml->multi_echo_enable(true);  //Multi Echo enable (True / False)
 
 	success = lidar_ml->run();
 

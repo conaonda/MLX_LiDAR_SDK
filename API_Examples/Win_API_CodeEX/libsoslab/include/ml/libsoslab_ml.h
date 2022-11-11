@@ -56,10 +56,10 @@ namespace SOSLAB
 		bool depth_completion(bool en);
 		bool channelwise_power_control(bool en);
 
-		bool ambient_enalbe(bool en);
-		bool depth_enalbe(bool en);
-		bool intensity_enalbe(bool en);
-		bool multi_echo_enalbe(bool en);
+		bool ambient_enable(bool en);
+		bool depth_enable(bool en);
+		bool intensity_enable(bool en);
+		bool multi_echo_enable(bool en);
 
 		bool get_scene(scene_t& scene);
 		bool get_scene(scene_t& scene, int idx);
