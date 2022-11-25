@@ -88,10 +88,24 @@ int main (int argc, char **argv)
 	}
 
     /* Data Selection */
-    lidar_ml->ambient_enable(true);     //Ambient enable (True / False)
-    lidar_ml->depth_enable(true);       //Depth enable (True / False)
-    lidar_ml->intensity_enable(true);   //Intensity enable (True / False)
-    lidar_ml->multi_echo_enable(true);  //Multi Echo enable (True / False)
+    bool ambient_enable                   = true;
+    bool depth_enable                     = true;
+    bool intensity_enable                 = true;
+    bool multi_echo_enable                = false;
+    bool depth_completion_enable          = false;
+
+    nh.param<bool>("ambient_enable", ambient_enable, true);
+    nh.param<bool>("depth_enable", depth_enable, true);
+    nh.param<bool>("intensity_enable", intensity_enable, true);
+    nh.param<bool>("multi_echo_enable", multi_echo_enable, true);
+    nh.param<bool>("depth_completion_enable", depth_completion_enable, true);
+
+    lidar_ml->ambient_enable(ambient_enable);     //Ambient enable (True / False)
+    lidar_ml->depth_enable(depth_enable);       //Depth enable (True / False)
+    lidar_ml->intensity_enable(intensity_enable);   //Intensity enable (True / False)
+    lidar_ml->multi_echo_enable(multi_echo_enable);  //Multi Echo enable (True / False)
+
+    lidar_ml->depth_completion(depth_completion_enable);
 
 	success = lidar_ml->run();
 
@@ -129,49 +143,62 @@ int main (int argc, char **argv)
         /* Stream FIFO로부터 한 프레임씩 Lidar data를 가져옵니다. */
         
         if (lidar_ml->get_scene(scene)) {
-            std::vector<uint32_t> ambient = scene.ambient_image;
-            std::vector<uint16_t> intensity = scene.intensity_image[0];
-            std::vector<uint32_t> depth = scene.depth_image[0];
+            std::vector<uint32_t> ambient;
+            std::vector<uint16_t> intensity;
+            std::vector<uint32_t> depth;
             std::vector<SOSLAB::point_t> pointcloud = scene.pointcloud[0];
 
             std::size_t height = scene.rows;	// Lidar frame의 height 정보입니다.
             std::size_t width = scene.cols;	// Lidar frame의 width 정보입니다.
             std::size_t width2 = (scene.cols == 192) ? scene.cols*3 : scene.cols;
+
             /* Ambient Image */
             /* 측정 된 모든 빛을 표현 한 데이터 입니다. */
-            cv::Mat ambient_image(height, width2, CV_32SC1, ambient.data());
-            ambient_image.convertTo(ambient_image, CV_8UC1, (255.0 / (max_ambient_img_val - 0)), 0);
-            ambient_image = colormap(ambient_image);
-            cv::normalize(ambient_image, ambient_image, 0, 255, cv::NORM_MINMAX);
-            if (pub_ambient.getNumSubscribers() > 0) {
-                msg_ambient = cv_bridge::CvImage(std_msgs::Header(), "rgb8", ambient_image).toImageMsg();
-                pub_ambient.publish(msg_ambient);
+            if(!scene.ambient_image.empty()){
+                ambient = scene.ambient_image;
+
+                cv::Mat ambient_image(height, width2, CV_32SC1, ambient.data());
+
+                ambient_image.convertTo(ambient_image, CV_8UC1, (255.0 / (max_ambient_img_val - 0)), 0);
+                ambient_image = colormap(ambient_image);
+                cv::normalize(ambient_image, ambient_image, 0, 255, cv::NORM_MINMAX);
+                if (pub_ambient.getNumSubscribers() > 0) {
+                    msg_ambient = cv_bridge::CvImage(std_msgs::Header(), "rgb8", ambient_image).toImageMsg();
+                    pub_ambient.publish(msg_ambient);
+                }
             }
 
             /* Depth Image */
             /* 원점(Lidar)로부터의 거리 정보입니다. (unit: mm) */
-            cv::Mat depth_image(height, width, CV_32SC1, depth.data());
+            if(!scene.depth_image.empty()){
+                depth = scene.depth_image[0];
 
-            depth_image.convertTo(depth_image, CV_16U);
-            depth_image.convertTo(depth_image, CV_8UC1, (255.0 / (max_depth_img_val - 0)), 0);
-            // depth_image.convertTo(depth_image, CV_8U, 1.0 / 64.0);
-            depth_image = colormap(depth_image);
-            cv::normalize(depth_image, depth_image, 0, 255, cv::NORM_MINMAX);
-            if(pub_depth.getNumSubscribers() > 0) {
-                msg_depth = cv_bridge::CvImage(std_msgs::Header(), "rgb8", depth_image).toImageMsg();
-                pub_depth.publish(msg_depth);
+                cv::Mat depth_image(height, width, CV_32SC1, depth.data());
+
+                depth_image.convertTo(depth_image, CV_16U);
+                depth_image.convertTo(depth_image, CV_8UC1, (255.0 / (max_depth_img_val - 0)), 0);
+                
+                depth_image = colormap(depth_image);
+                cv::normalize(depth_image, depth_image, 0, 255, cv::NORM_MINMAX);
+                if(pub_depth.getNumSubscribers() > 0) {
+                    msg_depth = cv_bridge::CvImage(std_msgs::Header(), "rgb8", depth_image).toImageMsg();
+                    pub_depth.publish(msg_depth);
+                }
             }
 
             /* Intensity Image */
-            cv::Mat intensity_image_raw(height, width, CV_16UC1, intensity.data());
             cv::Mat intensity_image;
-            intensity_image_raw.convertTo(intensity_image, CV_8UC1, (255.0 / (max_intensity_img_val - 0)), 0);
-            // intensity_image_raw.convertTo(intensity_image, CV_8UC1, 1.0 / 1.0);
-            intensity_image = colormap(intensity_image);
+            if(!scene.intensity_image.empty()){
+                intensity = scene.intensity_image[0];
+                cv::Mat intensity_image_raw(height, width, CV_16UC1, intensity.data());
+                intensity_image_raw.convertTo(intensity_image, CV_8UC1, (255.0 / (max_intensity_img_val - 0)), 0);
+                // intensity_image_raw.convertTo(intensity_image, CV_8UC1, 1.0 / 1.0);
+                intensity_image = colormap(intensity_image);
 
-            if (pub_intensity.getNumSubscribers() > 0) {
-                msg_intensity = cv_bridge::CvImage(std_msgs::Header(), "rgb8", intensity_image).toImageMsg();
-                pub_intensity.publish(msg_intensity);
+                if (pub_intensity.getNumSubscribers() > 0) {
+                    msg_intensity = cv_bridge::CvImage(std_msgs::Header(), "rgb8", intensity_image).toImageMsg();
+                    pub_intensity.publish(msg_intensity);
+                }
             }
 
             /* Point Cloud */
@@ -190,9 +217,16 @@ int main (int argc, char **argv)
                     msg_pointcloud->points[idx].y = pointcloud[idx].y / 1000.0 ;
                     msg_pointcloud->points[idx].z = pointcloud[idx].z / 1000.0 ;
 
-                    msg_pointcloud->points[idx].r = (uint8_t)(intensity_image.at<cv::Vec3b>(row, col)[0]);
-                    msg_pointcloud->points[idx].g = (uint8_t)(intensity_image.at<cv::Vec3b>(row, col)[1]);
-                    msg_pointcloud->points[idx].b = (uint8_t)(intensity_image.at<cv::Vec3b>(row, col)[2]);
+                    if(!scene.intensity_image.empty()){
+                        msg_pointcloud->points[idx].r = (uint8_t)(intensity_image.at<cv::Vec3b>(row, col)[0]);
+                        msg_pointcloud->points[idx].g = (uint8_t)(intensity_image.at<cv::Vec3b>(row, col)[1]);
+                        msg_pointcloud->points[idx].b = (uint8_t)(intensity_image.at<cv::Vec3b>(row, col)[2]);
+                    }
+                    else{
+                        msg_pointcloud->points[idx].r = 255;
+                        msg_pointcloud->points[idx].g = 255;
+                        msg_pointcloud->points[idx].b = 255;
+                    }
                 }
             }
             // publish the pointcloud
