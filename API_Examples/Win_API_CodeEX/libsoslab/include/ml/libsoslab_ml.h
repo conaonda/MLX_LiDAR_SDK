@@ -1,10 +1,3 @@
-/*
- * libsoslab_ml.h
- *
- *  Created on: Dec 02, 2019
- *      Author: gnohead
- */
-
 #ifndef LIDAR_ML_H_
 #define LIDAR_ML_H_
 
@@ -17,6 +10,7 @@ namespace SOSLAB
 	class SOSLAB_EXPORTS LidarML
 	{
 	public:
+		//User
 		typedef struct _ML_SCENE_T {
 			std::vector<uint64_t> timestamp;
 			uint64_t status;
@@ -49,24 +43,24 @@ namespace SOSLAB
 		bool run();
 		bool stop();
 
-		bool emission_inhibit(bool en);
-		bool lp_mode(bool en);
-		bool hv_ctrl(bool en);
-		bool fir_filter(bool en);
+		bool fps10(bool en);
 		bool depth_completion(bool en);
-		bool channelwise_power_control(bool en);
+		bool set_flaring_score(float val);
 
 		bool ambient_enable(bool en);
 		bool depth_enable(bool en);
 		bool intensity_enable(bool en);
-		bool multi_echo_enable(bool en);
 
 		bool get_scene(scene_t& scene);
 		bool get_scene(scene_t& scene, int idx);
 
 	private:
 		void* lidar_;
+
 	};
 
 }   /* namespace SOSLAB */
+
+
+
 #endif /* LIDAR_ML_H_ */

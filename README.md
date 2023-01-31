@@ -1,12 +1,31 @@
 # (SOSLAB) ML-X LiDAR SDK
 ---
-## Release v1.2.3 (2022-11-25, ML-X Rev.4) 
+## Release v2.3.0 (2023-01-31, ML-X Rev.4)
+
+### F/W (v2.3.0)
+- On-device Signal/Data Processing
+	- Flaring Removal
+	- Walk Error Compensation
+<br/>
+
+### API & LiDAR SW (v2.3.0)
+- User Mode Toolbar Update
+	- 10 FPS
+### User Guide (v2.3.0)
+- ML-X S/W User Guide
+	- SOS Studio Manual Update
+	- API Manual & Example Update
+<br/>
+<br/>
+<br/>
+
+## Release v1.2.3 (2022-11-25, ML-X Rev.4)
 
 ### F/W (v2.1.1)
 - ML-X H/W rev.4 Control Logic
 - PCD, Image Data Selection
 - On-device Signal/Data Processing
-	- Flaring Removal 
+	- Flaring Removal
 <br/>
 
 ### API & LiDAR SW (v2.1.1)
@@ -19,26 +38,26 @@
 <br/>
 
 
-## Release v1.1.0 (2022-10-06, ML-X Rev.3) 
+## Release v1.1.0 (2022-10-06, ML-X Rev.3)
 
 ### F/W (v2.0.1)
 - ML-X H/W rev.3 Control Logic
 - Firmware Golden Image
 - On-device Signal/Data Processing
-	- Thermal Drift Compensation (Sensitivity) 
+	- Thermal Drift Compensation (Sensitivity)
 	- VCSEL, SPDA Offset Compenstation
 	- Walk-error Dynamic Range Enhancement
 	- Adaptive threshold
 	- Lens Distortion Compensation
 	- Backbeam Removal
 	- Depth Completion
-	- Flying Edge Removal 
+	- Flying Edge Removal
 <br/>
 
 ### API & LiDAR SW (v2.0.1)
 - Windows/Ubuntu API Example
 - User Mode Toolbar Update
-	- IP Finder	
+	- IP Finder
 	- Timing Sync.
 	- Device Setting Read/Write
 - Develop Mode Toolbar Update
@@ -58,14 +77,14 @@
 <br/>
 <br/>
 
-## Release v1.0.0 (2022-08-15, ML-X Rev.2) 
+## Release v1.0.0 (2022-08-15, ML-X Rev.2)
 
 ### F/W (v1.2.0)
 - ML-X H/W rev.2 Control Logic
 - Data Transmission Protocol
 - Device Status Monitoring
-- Flash Memory Read/Write 
-- Firmware Upgrade 
+- Flash Memory Read/Write
+- Firmware Upgrade
 - Signal & Data Processing Module
 <br/>
 

@@ -71,7 +71,7 @@ int main()
 	SOSLAB::ip_settings_t ip_settings_pc;
 	ip_settings_pc.ip_address = "0.0.0.0";
 	ip_settings_pc.port_number = 0;
-	ip_settings_device.ip_address = "192.168.1.10";
+	ip_settings_device.ip_address = "192.168.1.11";
 	ip_settings_device.port_number = 2000;
 		
 	success = lidar_ml->connect(ip_settings_device, ip_settings_pc);
@@ -80,11 +80,13 @@ int main()
 		return 0;
 	}
 
+	/* FPS 10 */
+	lidar_ml->fps10(false);
+
 	/* Data Selection */
     lidar_ml->ambient_enable(true);     //Ambient enable (True / False)
     lidar_ml->depth_enable(true);       //Depth enable (True / False)
     lidar_ml->intensity_enable(true);   //Intensity enable (True / False)
-    lidar_ml->multi_echo_enable(true);  //Multi Echo enable (True / False)
 
 	success = lidar_ml->run();
 
@@ -130,6 +132,9 @@ int main()
 			std::vector<SOSLAB::point_t> pointcloud = scene.pointcloud[0];	//Lidar PointCloud 정보입니다.
 			std::size_t height = scene.rows;	// Lidar frame의 height 정보입니다.
 			std::size_t width = scene.cols;		// Lidar frame의 width 정보입니다.
+			std::size_t width2 = width;
+
+			if (ambient.size() != depth.size()) width2 = width * 3;
 
 			int ambient_max = 2000;
 			int depth_max = 10000;
@@ -137,7 +142,7 @@ int main()
 
 			/* ambient Image */
 			/* 측정 된 모든 빛을 표현 한 데이터 입니다. */
-			cv::Mat ambient_image_raw(height, width*3, CV_32SC1, ambient.data());
+			cv::Mat ambient_image_raw(height, width2, CV_32SC1, ambient.data());
 			cv::Mat ambient_rgb;
 
 			ambient_image_raw.convertTo(ambient_rgb, CV_8UC1, (255.0 / (ambient_max - 0)), 0);
