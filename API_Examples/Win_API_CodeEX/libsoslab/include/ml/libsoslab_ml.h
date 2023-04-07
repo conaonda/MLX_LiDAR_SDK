@@ -10,7 +10,6 @@ namespace SOSLAB
 	class SOSLAB_EXPORTS LidarML
 	{
 	public:
-		//User
 		typedef struct _ML_SCENE_T {
 			std::vector<uint64_t> timestamp;
 			uint64_t status;
@@ -56,11 +55,7 @@ namespace SOSLAB
 
 	private:
 		void* lidar_;
-
 	};
 
 }   /* namespace SOSLAB */
-
-
-
 #endif /* LIDAR_ML_H_ */

@@ -1,6 +1,10 @@
 # (SOSLAB) ML-X LiDAR SDK
 ---
-## Release v2.3.0 (2023-01-31, ML-X Rev.4)
+## Release v1.3.0 (2023-04-07, ML-X Rev.1)
+- Rev.1 Integration
+<br/>
+<br/>
+<br/>
 
 ### F/W (v2.3.0)
 - On-device Signal/Data Processing
@@ -19,7 +23,7 @@
 <br/>
 <br/>
 
-## Release v1.2.3 (2022-11-25, ML-X Rev.4)
+## Release v1.2.3 (2022-11-25)
 
 ### F/W (v2.1.1)
 - ML-X H/W rev.4 Control Logic
@@ -38,7 +42,7 @@
 <br/>
 
 
-## Release v1.1.0 (2022-10-06, ML-X Rev.3)
+## Release v1.1.0 (2022-10-06)
 
 ### F/W (v2.0.1)
 - ML-X H/W rev.3 Control Logic
@@ -77,7 +81,7 @@
 <br/>
 <br/>
 
-## Release v1.0.0 (2022-08-15, ML-X Rev.2)
+## Release v1.0.0 (2022-08-15)
 
 ### F/W (v1.2.0)
 - ML-X H/W rev.2 Control Logic

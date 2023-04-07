@@ -71,7 +71,7 @@ int main()
 	SOSLAB::ip_settings_t ip_settings_pc;
 	ip_settings_pc.ip_address = "0.0.0.0";
 	ip_settings_pc.port_number = 0;
-	ip_settings_device.ip_address = "192.168.1.11";
+	ip_settings_device.ip_address = "192.168.1.10";
 	ip_settings_device.port_number = 2000;
 		
 	success = lidar_ml->connect(ip_settings_device, ip_settings_pc);
@@ -82,6 +82,8 @@ int main()
 
 	/* FPS 10 */
 	lidar_ml->fps10(false);
+	/* Depth Completion */
+	lidar_ml->depth_completion(false);
 
 	/* Data Selection */
     lidar_ml->ambient_enable(true);     //Ambient enable (True / False)

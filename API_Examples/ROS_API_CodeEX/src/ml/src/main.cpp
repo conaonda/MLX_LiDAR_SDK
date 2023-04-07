@@ -99,19 +99,20 @@ int main (int argc, char **argv)
     bool intensity_enable                 = true;
 
     nh.param<bool>("fps10", fps10_enable, false);
-    nh.param<bool>("depth_completion_enable", depth_completion_enable, true);
+    nh.param<bool>("depth_completion_enable", depth_completion_enable, false);
 
     nh.param<bool>("ambient_enable", ambient_enable, true);
     nh.param<bool>("depth_enable", depth_enable, true);
     nh.param<bool>("intensity_enable", intensity_enable, true);
 
-    lidar_ml->fps10(fps10_enable);
-    lidar_ml->depth_completion(depth_completion_enable);
-
-    lidar_ml->ambient_enable(ambient_enable);     //Ambient enable (True / False)
-    lidar_ml->depth_enable(depth_enable);       //Depth enable (True / False)
+    lidar_ml->ambient_enable(ambient_enable);       //Ambient enable (True / False)
+    lidar_ml->depth_enable(depth_enable);           //Depth enable (True / False)
     lidar_ml->intensity_enable(intensity_enable);   //Intensity enable (True / False)
 
+    /* FPS 10 */
+    lidar_ml->fps10(fps10_enable);
+    /* Depth Completion */
+    lidar_ml->depth_completion(depth_completion_enable);
 
 	success = lidar_ml->run();
 
