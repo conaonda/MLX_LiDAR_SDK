@@ -1,109 +1,55 @@
-# (SOSLAB) ML-X LiDAR SDK
+# SOS LAB ML-X LiDAR SDK
 ---
-## Release v1.3.0 (2023-04-07, ML-X Rev.1)
-- Rev.1 Integration
-<br/>
-<br/>
-<br/>
+This is a C++ Software Development Kit(SDK) for connecting and using the ML-X LiDAR developed by SOS LAB.</br>
+This SDK provides APIs for Windows and Ubuntu, and also includes SOS Studio, a LiDAR visualization software for Windows.</br>
+User guides are available in English and Korean.</br>
 
-### F/W (v2.3.0)
-- On-device Signal/Data Processing
-	- Flaring Removal
-	- Walk Error Compensation
-<br/>
+## Release Version
+- SDK v1.3
+- Firmware v1.3
 
-### API & LiDAR SW (v2.3.0)
-- User Mode Toolbar Update
-	- 10 FPS
-### User Guide (v2.3.0)
-- ML-X S/W User Guide
-	- SOS Studio Manual Update
-	- API Manual & Example Update
-<br/>
-<br/>
-<br/>
+# Update
+- Release v1.3
 
-## Release v1.2.3 (2022-11-25)
+## Table of Contents
 
-### F/W (v2.1.1)
-- ML-X H/W rev.4 Control Logic
-- PCD, Image Data Selection
-- On-device Signal/Data Processing
-	- Flaring Removal
-<br/>
+1. [Getting Started](#getting-started)
+2. [Installation and Setup](#installation-and-setup)
+3. [Using SOS Studio](#using-sos-studio)
+4. [Documentation](#documentation)
 
-### API & LiDAR SW (v2.1.1)
-- User Mode Toolbar Update
-	- PCAP Data Logger & Palyer
-- Develop Mode Toolbar Update
-	- Full/User Packet Selection
-<br/>
-<br/>
-<br/>
+## Getting Started
 
+To get started with this project, you will need:
 
-## Release v1.1.0 (2022-10-06)
+- C++ development environment
+- Windows or Ubuntu operating system
+- SOS LAB ML-X LiDAR device
 
-### F/W (v2.0.1)
-- ML-X H/W rev.3 Control Logic
-- Firmware Golden Image
-- On-device Signal/Data Processing
-	- Thermal Drift Compensation (Sensitivity)
-	- VCSEL, SPDA Offset Compenstation
-	- Walk-error Dynamic Range Enhancement
-	- Adaptive threshold
-	- Lens Distortion Compensation
-	- Backbeam Removal
-	- Depth Completion
-	- Flying Edge Removal
-<br/>
+## Installation and Setup
 
-### API & LiDAR SW (v2.0.1)
-- Windows/Ubuntu API Example
-- User Mode Toolbar Update
-	- IP Finder
-	- Timing Sync.
-	- Device Setting Read/Write
-- Develop Mode Toolbar Update
-	- Histogram Analysis Module Update
-	- Image Analysis Module Update
-	- Alignment Module Update
-- PCAP Data Logger & Player
-<br/>
+Clone this repository to your local machine to access the APIs, examples, and other resources.
 
-### User Guide (v1.2.2)
-- ML-X S/W User Guide
-	- Hardware Configuration
-	- SOS Studio Manual Update
-	- API Manual & Example Update
-	- Data Protocol Update
-<br/>
-<br/>
-<br/>
+### Windows
 
-## Release v1.0.0 (2022-08-15)
+APIs and examples for Windows can be found in the `API_Examples/Win_API_CodeEX` folder.
 
-### F/W (v1.2.0)
-- ML-X H/W rev.2 Control Logic
-- Data Transmission Protocol
-- Device Status Monitoring
-- Flash Memory Read/Write
-- Firmware Upgrade
-- Signal & Data Processing Module
-<br/>
+### Ubuntu/ROS
 
-### API & LiDAR SW (v1.2.0)
-- Ethernet Connection & Device Setup
-- Point-cloud/Image Visualizer
-- Streaming, Data Logging & Play
-- Signal & Data Processing Module
-<br/>
+APIs and examples for Ubuntu/ROS can be found in the `API_Examples/ROS_API_CodeEX/src/ml` folder.
 
-### User Guide (v1.0.0)
-- ML-X S/W User Guide
-	- SOS Studio Manual
-	- Ubuntu-ROS API Manual & Example Code
-	- Appendix: Typedefs, Classes
-<br/>
-<br/>
-<br/>
+### Firmware
+
+To be updated.
+
+## Using SOS Studio
+
+SOS Studio is a LiDAR visualization software for Windows.</br>
+To install and use the software, navigate to the `SOS_Studio` folder and run the `SOS Studio_setup.exe` executable file.
+
+## Documentation
+
+User guides can be found in the `User_Guide` folder:
+
+- [User Guide (English)](User_Guide/ML-X_SDK_User_Guide_v1.2(EN).pdf)
+- [User Guide (Korean)](User_Guide/ML-X_SDK_User_Guide_v1.3(KOR).pdf)
