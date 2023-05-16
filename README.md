@@ -2,14 +2,13 @@
 ---
 This is a **C++ Software Development Kit(SDK)** for connecting and using the **ML-X LiDAR developed by SOS LAB.**</br>
 </br>
-![SOS Studio Example](Figure/sos_studio_example.gif)</br>
+![SOS Studio Example](Etc/sos_studio_example.gif)</br>
 
 ## Release Version
-- SDK v1.3
-- Firmware v1.3
+- SDK v1.4
 
 # Update
-- Release v1.3
+- Release v1.4
 
 ## Table of Contents
 
@@ -32,11 +31,11 @@ Clone this repository to your local machine to access the APIs, examples, and ot
 
 ### Windows
 
-APIs and examples for Windows can be found in the `API_Examples/Win_API_CodeEX` folder.
+APIs and examples for Windows can be found in the `MLX_API/examples/test_ml` folder.
 
 ### Ubuntu/ROS
 
-APIs and examples for Ubuntu/ROS can be found in the `API_Examples/ROS_API_CodeEX/src/ml` folder.
+APIs and examples for Ubuntu/ROS can be found in the `MLX_API/examples/ros_ml` folder.
 
 ### Firmware
 
@@ -51,5 +50,5 @@ To install and use the software, navigate to the `SOS_Studio` folder and run the
 
 User guides can be found in the `User_Guide` folder:
 
-- [User Guide (English)](User_Guide/ML-X_SDK_User_Guide_v1.2(EN).pdf)
-- [User Guide (Korean)](User_Guide/ML-X_SDK_User_Guide_v1.3(KOR).pdf)
+- [User Guide (English)](User_Guide/ML-X_User_Guide_v1.4(EN).pdf)
+- [User Guide (Korean)](User_Guide/ML-X_User_Guide_v1.4(KOR).pdf)
