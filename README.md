@@ -5,10 +5,11 @@ This is a **C++ Software Development Kit(SDK)** for connecting and using the **M
 ![SOS Studio Example](Etc/sos_studio_example.gif)</br>
 
 ## Release Version
-- SDK v1.4
+- SDK v1.4.1
 
 # Update
-- Release v1.4
+- Release v1.4.1
+- Release Linux SOS Studio
 
 ## Table of Contents
 
@@ -43,8 +44,37 @@ To be updated.
 
 ## Using SOS Studio
 
-SOS Studio is a LiDAR visualization software for Windows.</br>
-To install and use the software, navigate to the `SOS_Studio` folder and run the `SOS Studio_setup.exe` executable file.
+SOS Studio is a LiDAR visualization software that runs on both Windows and Linux operating systems.
+The Linux version supports Ubuntu 18.04, 20.04, and 22.04.
+
+### Windows Installation
+
+To install and use SOS Studio on Windows, follow these steps:
+
+1. Navigate to the `SOS_Studio/Windows` folder.
+2. Run the `SOS Studio_setup.exe` executable file.
+
+### Linux Installation
+
+To install and use SOS Studio on Linux, follow these steps:
+
+1. Open the terminal and navigate to the 'SOS_Studio/Linux' folder.
+2. Install the required dependencies by running the following command:
+
+```shell
+sudo apt-get install '^libxcb.*-dev'
+```
+
+3. Make the sos_studio.sh file executable by running the following command:
+```shell
+chmod a+x ./sos_studio.sh
+```
+
+4. Execute the sos_studio.sh script to run SOS Studio:
+```shell
+run ./sos_studio.sh
+```
+
 
 ## Documentation
 
