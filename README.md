@@ -68,6 +68,7 @@ sudo apt-get install '^libxcb.*-dev'
 3. Make the sos_studio.sh file executable by running the following command:
 ```shell
 chmod a+x ./sos_studio.sh
+chmod a+x ./deployqt/bin/sos_studio
 ```
 
 4. Execute the sos_studio.sh script to run SOS Studio:

@@ -357,6 +357,30 @@ public:
 		return retval;
 	}
 
+	bool multi_echo_enable(bool en)
+	{
+		bool retval = false;
+		tcp_type_ = TCPTYPE::ACK;
+
+		std::string json_str;
+		if (en) {
+			json_str = "{\"PL_Reg\":{\"packet_multi_echo_en\":1}}";
+		}
+		else {
+			json_str = "{\"PL_Reg\":{\"packet_multi_echo_en\":0}}";
+		}
+		std::vector<char> json_vector(json_str.begin(), json_str.end());
+		auto tcp = std::dynamic_pointer_cast<ExtInterface_TCP_client>(tcp_interface_);
+		if (tcp->is_connected()) {
+			retval = tcp->write(reinterpret_cast<char*>(json_vector.data()), json_vector.size());
+			if (retval) std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+
+		if (retval) retval = get_ack();
+
+		return retval;
+	}
+
 	bool sync_localtime(void)
 	{
 		bool retval = false;
@@ -721,6 +745,11 @@ bool SOSLAB::LidarML::depth_enable(bool en)
 bool SOSLAB::LidarML::intensity_enable(bool en)
 {
 	return static_cast<MLX*>(lidar_)->intensity_enable(en);
+}
+
+bool SOSLAB::LidarML::multi_echo_enable(bool en)
+{
+	return static_cast<MLX*>(lidar_)->multi_echo_enable(en);
 }
 
 bool SOSLAB::LidarML::get_scene(scene_t& scene)

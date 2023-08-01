@@ -58,6 +58,7 @@ namespace SOSLAB
 		bool ambient_enable(bool en);
 		bool depth_enable(bool en);
 		bool intensity_enable(bool en);
+		bool multi_echo_enable(bool en);
 
 		bool get_scene(scene_t& scene);
 		bool get_scene(scene_t& scene, int idx);
