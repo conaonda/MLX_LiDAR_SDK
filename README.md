@@ -5,10 +5,10 @@ This is a **C++ Software Development Kit(SDK)** for connecting and using the **M
 ![SOS Studio Example](Etc/sos_studio_example.gif)</br>
 
 ## Release Version
-- SDK v1.4.1
+- SDK v2.0
 
 # Update
-- Release v1.4.1
+- Release v2.0
 - Release Linux SOS Studio
 
 ## Table of Contents
@@ -81,5 +81,5 @@ run ./sos_studio.sh
 
 User guides can be found in the `User_Guide` folder:
 
-- [User Guide (English)](User_Guide/ML-X_User_Guide_v1.4(EN).pdf)
-- [User Guide (Korean)](User_Guide/ML-X_User_Guide_v1.4(KOR).pdf)
+- [User Guide (English)](User_Guide/ML-X_User_Guide_v2.0(EN).pdf)
+- [User Guide (Korean)](User_Guide/ML-X_User_Guide_v2.0(KOR).pdf)
