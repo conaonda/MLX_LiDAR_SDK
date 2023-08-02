@@ -360,7 +360,6 @@ public:
 	bool multi_echo_enable(bool en)
 	{
 		bool retval = false;
-		tcp_type_ = TCPTYPE::ACK;
 
 		std::string json_str;
 		if (en) {
