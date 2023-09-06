@@ -5,11 +5,13 @@ This is a **C++ Software Development Kit(SDK)** for connecting and using the **M
 ![SOS Studio Example](Etc/sos_studio_example.gif)</br>
 
 ## Release Version
-- SDK v2.0
+- SDK v2.1
 
 # Update
-- Release v2.0
-- Release Linux SOS Studio
+- Release v2.1
+- Add PTP, F/W Update Function (only supported in F/W Versions 1.5 and 2.1.)
+- Add Callback Function
+- Support for Python, ROS2
 
 ## Table of Contents
 
@@ -73,7 +75,7 @@ chmod a+x ./deployqt/bin/sos_studio
 
 4. Execute the sos_studio.sh script to run SOS Studio:
 ```shell
-run ./sos_studio.sh
+./sos_studio.sh
 ```
 
 
@@ -81,5 +83,5 @@ run ./sos_studio.sh
 
 User guides can be found in the `User_Guide` folder:
 
-- [User Guide (English)](User_Guide/ML-X_User_Guide_v2.0(EN).pdf)
-- [User Guide (Korean)](User_Guide/ML-X_User_Guide_v2.0(KOR).pdf)
+- [User Guide (English)](User_Guide/ML-X_User_Guide_v2.1(EN).pdf)
+- [User Guide (Korean)](User_Guide/ML-X_User_Guide_v2.1(KOR).pdf)

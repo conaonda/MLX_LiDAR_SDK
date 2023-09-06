@@ -26,6 +26,21 @@ static const char* DEFAULT_PACKAGE_NAME            = "ml";
 // Default publisher template
 static const char* DEFAULT_FRAME_ID = "map";
 
+image_transport::Publisher pub_depth;
+image_transport::Publisher pub_intensity;
+image_transport::Publisher pub_ambient;
+ros::Publisher pub_lidar;
+
+sensor_msgs::ImagePtr msg_ambient;
+sensor_msgs::ImagePtr msg_depth;
+sensor_msgs::ImagePtr msg_intensity;
+
+PointCloud_T::Ptr msg_pointcloud(new PointCloud_T);
+
+int max_ambient_img_val = 30000;
+int max_depth_img_val = 10000;
+int max_intensity_img_val = 3500;
+
 cv::Mat colormap(cv::Mat image)
 {
     nCols = image.cols;
@@ -52,40 +67,100 @@ cv::Mat colormap(cv::Mat image)
     return rgb_image;
 }
 
+void ml_scene_data_callback(void* arg, SOSLAB::LidarML::scene_t& scene)
+{
+    std::vector<uint32_t> ambient;
+    std::vector<uint16_t> intensity;
+    std::vector<uint32_t> depth;
+    std::vector<SOSLAB::point_t> pointcloud = scene.pointcloud[0];
+
+    std::size_t height = scene.rows;
+    std::size_t width = scene.cols;
+    std::size_t width2 = (scene.cols == 192) ? scene.cols*3 : scene.cols;
+
+    /* Ambient Image */
+    if(!scene.ambient_image.empty()){
+        ambient = scene.ambient_image;
+
+        cv::Mat ambient_image(height, width2, CV_32SC1, ambient.data());
+
+        ambient_image.convertTo(ambient_image, CV_8UC1, (255.0 / (max_ambient_img_val - 0)), 0);
+        ambient_image = colormap(ambient_image);
+        cv::normalize(ambient_image, ambient_image, 0, 255, cv::NORM_MINMAX);
+        if (pub_ambient.getNumSubscribers() > 0) {
+            msg_ambient = cv_bridge::CvImage(std_msgs::Header(), "rgb8", ambient_image).toImageMsg();
+            pub_ambient.publish(msg_ambient);
+        }
+    }
+
+    /* Depth Image */
+    if(!scene.depth_image.empty()){
+        depth = scene.depth_image[0];
+
+        cv::Mat depth_image(height, width, CV_32SC1, depth.data());
+
+        depth_image.convertTo(depth_image, CV_16U);
+        depth_image.convertTo(depth_image, CV_8UC1, (255.0 / (max_depth_img_val - 0)), 0);
+        
+        depth_image = colormap(depth_image);
+        cv::normalize(depth_image, depth_image, 0, 255, cv::NORM_MINMAX);
+        if(pub_depth.getNumSubscribers() > 0) {
+            msg_depth = cv_bridge::CvImage(std_msgs::Header(), "rgb8", depth_image).toImageMsg();
+            pub_depth.publish(msg_depth);
+        }
+    }
+
+    /* Intensity Image */
+    cv::Mat intensity_image;
+    if(!scene.intensity_image.empty()){
+        intensity = scene.intensity_image[0];
+        cv::Mat intensity_image_raw(height, width, CV_16UC1, intensity.data());
+        intensity_image_raw.convertTo(intensity_image, CV_8UC1, (255.0 / (max_intensity_img_val - 0)), 0);
+        intensity_image = colormap(intensity_image);
+
+        if (pub_intensity.getNumSubscribers() > 0) {
+            msg_intensity = cv_bridge::CvImage(std_msgs::Header(), "rgb8", intensity_image).toImageMsg();
+            pub_intensity.publish(msg_intensity);
+        }
+    }
+
+    /* Point Cloud */
+    msg_pointcloud->header.frame_id = DEFAULT_FRAME_ID;
+    msg_pointcloud->width = width;
+    msg_pointcloud->height = height;
+    msg_pointcloud->points.resize(pointcloud.size());
+
+    for (int col=0; col < width; col++) {
+        for (int row = 0; row < height; row++) {
+            int idx = col + (width * row);
+
+            //unit : (m)
+            msg_pointcloud->points[idx].x = pointcloud[idx].x / 1000.0 ;
+            msg_pointcloud->points[idx].y = pointcloud[idx].y / 1000.0 ;
+            msg_pointcloud->points[idx].z = pointcloud[idx].z / 1000.0 ;
+
+            if(!scene.intensity_image.empty()){
+                msg_pointcloud->points[idx].r = (uint8_t)(intensity_image.at<cv::Vec3b>(row, col)[0]);
+                msg_pointcloud->points[idx].g = (uint8_t)(intensity_image.at<cv::Vec3b>(row, col)[1]);
+                msg_pointcloud->points[idx].b = (uint8_t)(intensity_image.at<cv::Vec3b>(row, col)[2]);
+            }
+            else{
+                msg_pointcloud->points[idx].r = 255;
+                msg_pointcloud->points[idx].g = 255;
+                msg_pointcloud->points[idx].b = 255;
+            }
+        }
+    }
+    // publish the pointcloud
+    pcl_conversions::toPCL(ros::Time::now(), msg_pointcloud->header.stamp);
+    pub_lidar.publish(msg_pointcloud);
+}
+
 int main (int argc, char **argv)
 {
-
     bool success;
     /* ROS node init */
     ros::init(argc, argv, DEFAULT_PACKAGE_NAME);
-    
-    std::string frame_id = DEFAULT_FRAME_ID;
-
-    /* get parameters */
-    ros::NodeHandle nh("~");
-
-    /* LidarML 객체를 생성합니다. */
-    std::shared_ptr<SOSLAB::LidarML> lidar_ml(new SOSLAB::LidarML);
-
-    /* IP 정보를 이용하여 장치에 연결합니다. */
-    SOSLAB::ip_settings_t ip_settings_device;
-    SOSLAB::ip_settings_t ip_settings_pc;
-
-    nh.param<std::string>("ip_address_device", ip_settings_device.ip_address, DEFAULT_IP_ADDR_DEVICE);
-    nh.param<int>("ip_port_device", ip_settings_device.port_number, DEFAULT_IP_PORT_DEVICE);
-    nh.param<std::string>("ip_address_pc", ip_settings_pc.ip_address, DEFAULT_IP_ADDR_PC);
-    nh.param<int>("ip_port_pc", ip_settings_pc.port_number, DEFAULT_IP_PORT_PC);
-
-    std::cout << "> ip_address_device: " << ip_settings_device.ip_address << std::endl;
-    std::cout << "> ip_port_device: " << ip_settings_device.port_number << std::endl;
-    std::cout << "> ip_address_pc: " << ip_settings_pc.ip_address << std::endl;
-    std::cout << "> ip_port_pc: " << ip_settings_pc.port_number << std::endl;
-
-	success = lidar_ml->connect(ip_settings_device, ip_settings_pc);
-	if (!success) {
-		std::cerr << "LiDAR ML :: connection failed." << std::endl;
-		return 0;
-	}
 
     /* FPS 10 */
     bool fps10_enable                     = false;
@@ -98,12 +173,45 @@ int main (int argc, char **argv)
     bool depth_enable                     = true;
     bool intensity_enable                 = true;
 
+    /* get parameters */
+    ros::NodeHandle nh("~");
+
     nh.param<bool>("fps10", fps10_enable, false);
     nh.param<bool>("depth_completion_enable", depth_completion_enable, false);
 
     nh.param<bool>("ambient_enable", ambient_enable, true);
     nh.param<bool>("depth_enable", depth_enable, true);
     nh.param<bool>("intensity_enable", intensity_enable, true);
+
+    /* publisher setting */
+    image_transport::ImageTransport it(nh);
+
+    pub_depth = it.advertise("depth_color", 1);
+    pub_intensity = it.advertise("intensity_color", 1);
+    pub_ambient = it.advertise("ambient_color", 1);
+    pub_lidar = nh.advertise<PointCloud_T>("pointcloud", 10);
+
+    SOSLAB::ip_settings_t ip_settings_device;
+    SOSLAB::ip_settings_t ip_settings_pc;
+
+    nh.param<std::string>("ip_address_device", ip_settings_device.ip_address, DEFAULT_IP_ADDR_DEVICE);
+    nh.param<int>("ip_port_device", ip_settings_device.port_number, DEFAULT_IP_PORT_DEVICE);
+    nh.param<std::string>("ip_address_pc", ip_settings_pc.ip_address, DEFAULT_IP_ADDR_PC);
+    nh.param<int>("ip_port_pc", ip_settings_pc.port_number, DEFAULT_IP_PORT_PC);
+
+    std::shared_ptr<SOSLAB::LidarML> lidar_ml(new SOSLAB::LidarML);
+
+    std::cout << lidar_ml->api_info() << std::endl;
+    std::cout << "> ip_address_device: " << ip_settings_device.ip_address << std::endl;
+    std::cout << "> ip_port_device: " << ip_settings_device.port_number << std::endl;
+    std::cout << "> ip_address_pc: " << ip_settings_pc.ip_address << std::endl;
+    std::cout << "> ip_port_pc: " << ip_settings_pc.port_number << std::endl;
+
+	success = lidar_ml->connect(ip_settings_device, ip_settings_pc);
+	if (!success) {
+		std::cerr << "LiDAR ML :: connection failed." << std::endl;
+		return 0;
+	}
 
     lidar_ml->ambient_enable(ambient_enable);       //Ambient enable (True / False)
     lidar_ml->depth_enable(depth_enable);           //Depth enable (True / False)
@@ -114,6 +222,7 @@ int main (int argc, char **argv)
     /* Depth Completion */
     lidar_ml->depth_completion(depth_completion_enable);
 
+    lidar_ml->register_scene_callback(ml_scene_data_callback, nullptr);
 	success = lidar_ml->run();
 
 	if (!success) {
@@ -124,131 +233,16 @@ int main (int argc, char **argv)
 	}
     std::cout << "LiDAR ML :: Streaming started!" << std::endl;
 
-    /* publisher setting */
-    image_transport::ImageTransport it(nh);
-
-    image_transport::Publisher pub_depth = it.advertise("depth_color", 1);
-    image_transport::Publisher pub_intensity = it.advertise("intensity_color", 1);
-    image_transport::Publisher pub_ambient = it.advertise("ambient_color", 1);
-    ros::Publisher pub_lidar = nh.advertise<PointCloud_T>("pointcloud", 10);
-
-
-    sensor_msgs::ImagePtr msg_ambient;
-    sensor_msgs::ImagePtr msg_depth;
-    sensor_msgs::ImagePtr msg_intensity;
-
-    PointCloud_T::Ptr msg_pointcloud(new PointCloud_T);
-
-    int max_ambient_img_val = 3000;
-    int max_depth_img_val = 10000;
-    int max_intensity_img_val = 3000;
-
     /* publishing start */
     ros::Rate r(50);
     while (ros::ok()) {
-        SOSLAB::LidarML::scene_t scene;
-        /* Stream FIFO로부터 한 프레임씩 Lidar data를 가져옵니다. */
-        
-        if (lidar_ml->get_scene(scene)) {
-            std::vector<uint32_t> ambient;
-            std::vector<uint16_t> intensity;
-            std::vector<uint32_t> depth;
-            std::vector<SOSLAB::point_t> pointcloud = scene.pointcloud[0];
-
-            std::size_t height = scene.rows;	// Lidar frame의 height 정보입니다.
-            std::size_t width = scene.cols;	// Lidar frame의 width 정보입니다.
-            std::size_t width2 = (scene.cols == 192) ? scene.cols*3 : scene.cols;
-
-            /* Ambient Image */
-            /* 측정 된 모든 빛을 표현 한 데이터 입니다. */
-            if(!scene.ambient_image.empty()){
-                ambient = scene.ambient_image;
-
-                cv::Mat ambient_image(height, width2, CV_32SC1, ambient.data());
-
-                ambient_image.convertTo(ambient_image, CV_8UC1, (255.0 / (max_ambient_img_val - 0)), 0);
-                ambient_image = colormap(ambient_image);
-                cv::normalize(ambient_image, ambient_image, 0, 255, cv::NORM_MINMAX);
-                if (pub_ambient.getNumSubscribers() > 0) {
-                    msg_ambient = cv_bridge::CvImage(std_msgs::Header(), "rgb8", ambient_image).toImageMsg();
-                    pub_ambient.publish(msg_ambient);
-                }
-            }
-
-            /* Depth Image */
-            /* 원점(Lidar)로부터의 거리 정보입니다. (unit: mm) */
-            if(!scene.depth_image.empty()){
-                depth = scene.depth_image[0];
-
-                cv::Mat depth_image(height, width, CV_32SC1, depth.data());
-
-                depth_image.convertTo(depth_image, CV_16U);
-                depth_image.convertTo(depth_image, CV_8UC1, (255.0 / (max_depth_img_val - 0)), 0);
-                
-                depth_image = colormap(depth_image);
-                cv::normalize(depth_image, depth_image, 0, 255, cv::NORM_MINMAX);
-                if(pub_depth.getNumSubscribers() > 0) {
-                    msg_depth = cv_bridge::CvImage(std_msgs::Header(), "rgb8", depth_image).toImageMsg();
-                    pub_depth.publish(msg_depth);
-                }
-            }
-
-            /* Intensity Image */
-            cv::Mat intensity_image;
-            if(!scene.intensity_image.empty()){
-                intensity = scene.intensity_image[0];
-                cv::Mat intensity_image_raw(height, width, CV_16UC1, intensity.data());
-                intensity_image_raw.convertTo(intensity_image, CV_8UC1, (255.0 / (max_intensity_img_val - 0)), 0);
-                // intensity_image_raw.convertTo(intensity_image, CV_8UC1, 1.0 / 1.0);
-                intensity_image = colormap(intensity_image);
-
-                if (pub_intensity.getNumSubscribers() > 0) {
-                    msg_intensity = cv_bridge::CvImage(std_msgs::Header(), "rgb8", intensity_image).toImageMsg();
-                    pub_intensity.publish(msg_intensity);
-                }
-            }
-
-            /* Point Cloud */
-            /* normalize (min-max) */
-            msg_pointcloud->header.frame_id = frame_id;
-            msg_pointcloud->width = width;
-            msg_pointcloud->height = height;
-            msg_pointcloud->points.resize(pointcloud.size());
-
-            for (int col=0; col < width; col++) {
-                for (int row = 0; row < height; row++) {
-                    int idx = col + (width * row);
-
-                    //unit : (m)
-                    msg_pointcloud->points[idx].x = pointcloud[idx].x / 1000.0 ;
-                    msg_pointcloud->points[idx].y = pointcloud[idx].y / 1000.0 ;
-                    msg_pointcloud->points[idx].z = pointcloud[idx].z / 1000.0 ;
-
-                    if(!scene.intensity_image.empty()){
-                        msg_pointcloud->points[idx].r = (uint8_t)(intensity_image.at<cv::Vec3b>(row, col)[0]);
-                        msg_pointcloud->points[idx].g = (uint8_t)(intensity_image.at<cv::Vec3b>(row, col)[1]);
-                        msg_pointcloud->points[idx].b = (uint8_t)(intensity_image.at<cv::Vec3b>(row, col)[2]);
-                    }
-                    else{
-                        msg_pointcloud->points[idx].r = 255;
-                        msg_pointcloud->points[idx].g = 255;
-                        msg_pointcloud->points[idx].b = 255;
-                    }
-                }
-            }
-            // publish the pointcloud
-            pcl_conversions::toPCL(ros::Time::now(), msg_pointcloud->header.stamp);
-            pub_lidar.publish(msg_pointcloud);
-        }
         ros::spinOnce();
         r.sleep();
     }
 
-    /* 스트리밍을 종료 합니다. */
     lidar_ml->stop();
     std::cout << "Streaming stopped!" << std::endl;
 
-    /* 장치 연결을 해제합니다. */
     lidar_ml->disconnect();
 
     std::cout << "Done." << std::endl;

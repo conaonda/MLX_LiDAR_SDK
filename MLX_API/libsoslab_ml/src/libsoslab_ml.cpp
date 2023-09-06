@@ -36,6 +36,9 @@ private:
 
 	std::shared_ptr<Logger> recorder_;
 
+	SOSLAB::LidarML::receive_scene_callback_t recv_scene_callback_ = nullptr;
+	void* recv_scene_callback_arg_;
+
 public:
 	MLX() :
 		udp_interface_(new ExtInterface_UDP_client()),
@@ -68,6 +71,11 @@ public:
 		if (rtn != true) {
 			return false;
 		}
+
+		udp_receive_buffer_.clear();
+		thread_run = false;
+		scene_buffer_.clear();
+		ack_buffer_.clear();
 
 		return true;
 	}
@@ -380,6 +388,12 @@ public:
 		return retval;
 	}
 
+	void register_scene_callback(SOSLAB::LidarML::receive_scene_callback_t callback, void* arg)
+	{
+		recv_scene_callback_ = callback;
+		recv_scene_callback_arg_ = arg;
+	}
+
 	bool sync_localtime(void)
 	{
 		bool retval = false;
@@ -448,9 +462,6 @@ private:
 			if (jsn.contains("json_ack")) {
 				res = jsn.at("json_ack");
 			}
-			else if (jsn.contains("firmware_upgrade")) {
-				res = jsn.at("firmware_upgrade");
-			}
 
 			jsn.clear();
 			ack_buffer_.clear();
@@ -517,7 +528,6 @@ private:
 		std::shared_ptr<LidarML::scene_t> scene_ = std::make_shared <LidarML::scene_t>();
 
 		int echo_num = 1;
-		uint64_t slot_bit = 0;
 		bool stream_data_init = false;
 		bool get = false;
 
@@ -597,7 +607,6 @@ private:
 						scene_->timestamp.clear();
 						scene_->status = 0;
 						scene_->frame_id = lidar_pkt->frame_id;
-						slot_bit = 0;
 					}
 
 					scene_->timestamp.push_back(lidar_pkt->timestamp);
@@ -635,6 +644,8 @@ private:
 					}
 
 					if (row == 55) {
+						if (recv_scene_callback_ != nullptr)
+							recv_scene_callback_(recv_scene_callback_arg_, *scene_);
 						scene_buffer_.push(*scene_);
 					}
 				}
@@ -662,7 +673,7 @@ SOSLAB::LidarML::~LidarML()
 std::string SOSLAB::LidarML::api_info()
 {
 	std::stringstream ss;
-	ss << "SOSLAB LiDAR ML-X API v1.3.0 build";
+	ss << "SOSLAB LiDAR ML-X API v2.1.0 build";
 	return ss.str();
 }
 
@@ -749,6 +760,11 @@ bool SOSLAB::LidarML::intensity_enable(bool en)
 bool SOSLAB::LidarML::multi_echo_enable(bool en)
 {
 	return static_cast<MLX*>(lidar_)->multi_echo_enable(en);
+}
+
+void SOSLAB::LidarML::register_scene_callback(receive_scene_callback_t callback, void* arg)
+{
+	static_cast<MLX*>(lidar_)->register_scene_callback(callback, arg);
 }
 
 bool SOSLAB::LidarML::get_scene(scene_t& scene)

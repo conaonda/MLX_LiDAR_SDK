@@ -7,6 +7,14 @@
         <param name="ip_address_pc"     value="0.0.0.0"      type="string"/>
         <param name="ip_port_pc"        value="0"         type="int"/>
 
+        <param name="ambient_enable"          value="true"         type="bool"/>
+        <param name="depth_enable"            value="true"         type="bool"/>
+        <param name="intensity_enable"        value="true"         type="bool"/>
+        <param name="multi_echo_enable"       value="false"        type="bool"/>
+
+        <param name="depth_completion_enable" value="false"        type="bool"/>
+        <param name="fps10"                   value="false"        type="bool"/>
+
   </node>
 
 </launch>

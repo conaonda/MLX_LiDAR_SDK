@@ -11,6 +11,8 @@ using namespace SOSLAB;
 
 enum input_mode { CONNECT = 1, DISCONNECT, START, QUIT };
 auto lidar_ml = std::make_shared<LidarML>();
+std::vector<LidarML::scene_t> lidar_data_buffer;
+size_t TOTAL_FRAME_COUNT = 0;
 
 void check_ml_connection_status(void)
 {
@@ -103,6 +105,14 @@ void ml_disconnect(void)
 	std::cerr << "LiDAR ML :: disconnect." << std::endl;
 }
 
+void ml_scene_data_callback(void* arg, LidarML::scene_t& scene)
+{
+	if (lidar_data_buffer.size() < TOTAL_FRAME_COUNT) {
+		lidar_data_buffer.push_back(scene);
+		std::cerr << "LiDAR ML :: collected data count = " << lidar_data_buffer.size() << "." << std::endl;
+	}
+}
+
 bool ml_logging_start(void)
 {
 	bool success = lidar_ml->is_connected();
@@ -112,10 +122,14 @@ bool ml_logging_start(void)
 		return false;
 	}
 
-	size_t TOTAL_FRAME_COUNT = 0;
 	std::cerr << "Enter the number of frames to log : ";
 	std::cin >> TOTAL_FRAME_COUNT;
+	
+	// buffer for save lidar data
+	lidar_data_buffer.reserve(TOTAL_FRAME_COUNT);
 
+	// to get lidar data, must be register callback function
+	lidar_ml->register_scene_callback(ml_scene_data_callback, nullptr);
 	// to get lidar data, must be run
 	success = lidar_ml->run();
 	if (!success) {
@@ -126,20 +140,11 @@ bool ml_logging_start(void)
 	}
 	std::cerr << "LiDAR ML :: run." << std::endl;
 
-	// buffer for save lidar data
-	std::vector<LidarML::scene_t> lidar_data_buffer;
-	lidar_data_buffer.reserve(TOTAL_FRAME_COUNT);
-
 	// collecting lidar data.
 	std::cerr << "LiDAR ML :: waiting for collecting data." << std::endl;
-	size_t get_frame_count = 0;
-	while (get_frame_count < TOTAL_FRAME_COUNT) {
-		LidarML::scene_t lidar_data;
-
-		if (lidar_ml->get_scene(lidar_data)) {
-			lidar_data_buffer.push_back(lidar_data);
-			get_frame_count++;
-		}
+	while (true) {
+		if (lidar_data_buffer.size() == TOTAL_FRAME_COUNT) break;
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	}
 	std::cerr << "LiDAR ML :: succeed to collecting data." << std::endl;
 
@@ -173,6 +178,8 @@ bool ml_logging_start(void)
 
 	lidar_ml->stop();
 	std::cerr << "LiDAR ML :: stop." << std::endl;
+
+	lidar_data_buffer.clear();
 
 	return true;
 }

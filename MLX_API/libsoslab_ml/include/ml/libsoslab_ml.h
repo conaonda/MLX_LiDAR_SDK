@@ -29,6 +29,7 @@ namespace SOSLAB
 			std::vector<std::vector<point_t>> pointcloud;
 		} scene_t;
 
+		typedef void(*receive_scene_callback_t)(void* arg, scene_t& scene_);
 		typedef nlohmann::json json_t;
 
 		explicit LidarML();
@@ -60,6 +61,7 @@ namespace SOSLAB
 		bool intensity_enable(bool en);
 		bool multi_echo_enable(bool en);
 
+		void register_scene_callback(receive_scene_callback_t callback, void* arg);
 		bool get_scene(scene_t& scene);
 		bool get_scene(scene_t& scene, int idx);
 
